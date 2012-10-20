@@ -19,7 +19,6 @@ use vars qw{ @EXPORT_OK };
 @EXPORT_OK = qw{ application_under_test
                  run_test_script
                  test_script
-                 expect_wait
                  testtuiset };
 
 my (@application_under_test,
