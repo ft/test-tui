@@ -1,0 +1,200 @@
+% TestTUI(3) | Oct, 2012
+
+# NAME
+
+TestTUI - Framework for testing full-screen terminal applications
+
+# SYNOPSIS
+
+~~~~~~~ {.Perl}
+use TestTUI;
+
+testtuiset { trace => 1,
+             debug => 1 };
+
+application_under_test "aumix";
+
+test_script [
+    { until => { string => "aumix",
+                 line => 1,
+                 lendgth => 5 } },
+    "+++",
+    { wait => 250 },
+    "---",
+    { wait => 250 },
+    "q"
+    { programexit => 0 } ];
+
+run_test_script;
+~~~~~~~
+
+
+# DESCRIPTION
+
+The *TestTUI* module is a framework for user-interface testing of full-screen
+terminal applications (i.e. curses or s-lang applications). While being a Perl
+module and thus offering the full power of the Perl language and ecosystem,
+TestTUI implements a simple domain specific language to describe how an
+application under test should behave.
+
+
+# CONFIGURATION
+
+TestTUI can be configured by using the \`*testtuiset*' function described in
+**API** below. This section discusses the parameters, that \`*testtuiset*'
+offers to manipulate.
+
+`trace`
+
+:   If enabled, TestTUI prints a trace of characters it sends to the application
+    under test, as well as the actions it takes and the tests it performs.
+    (default: **off**)
+
+`debug`
+
+:   If enabled, TestTUI will emit lots of debugging information. (default:
+    **off**) [Not implemented yet]
+
+`dump`
+
+:   If enabled, TestTUI dumps the contents of its terminal buffer after each
+    implicit or explicit \`*wait*'. (default: **off**) [Not implemented yet]
+
+`expect_wait`
+
+:   Defines the default \`*wait*' period before \`*expect*' calls. (default:
+    **200**)
+
+`until_timeout`
+
+:   Defines the default timeout for \`*until*' calls. (default **1000**)
+
+`until_fraction`
+
+:   Defines the period of time \`*until*' calls wait as least before rechecking
+    the condition it was passed. (default: **100**)
+
+`write_timeout`
+
+:   Defines the timeout while writing the the application under test.
+    This timeout should never be hit, because the pty the application is
+    connected to should buffer a good amount of characters. If the default
+    timeout is hit, the application likely doesn't read its input anymore and
+    the pty's buffer is full. (default: **500**)
+
+`read_timeout`
+
+:   Defines the timeout for reading data from the application under test.
+    Contrary to \`*write_timeout*', this timeout is commonly hit and defines
+    the maximum granularity of \`*wait*' periods. A higher value results in
+    less granularity and less CPU time, whereas a lower values translates to
+    higher granularity and more CPU time. (default: **5**)
+
+
+# API
+
+TestTUI's API defines its domain-specific language for describing the desired
+execution of the application under test.
+
+`application_under_test`\ **PROGRAM-WITH-ARGUMENTS**
+
+:   Define the command-line of the program that should be tested. It is an
+    array of a command name with all the required arguments to the command.
+    This command is **not** passed through a shell.
+
+`test_script`\ **SCRIPT-LISTING**
+
+:   This defines the way the framework interacts with the program. See
+    **Script Listing** below for details. The **SCRIPT-LISTING** is supplied
+    as an array-ref.
+
+`run_test_script`
+
+:   Runs the application and applies the supplied test-script. This function
+    never returns. It will always call \`*exit*' with one of the exit codes
+    listed in **EXIT CODES** below.
+
+`testtuiset`\ **KEY-VALUE-PAIRS**
+
+:   This takes a set of key-value pairs as a hash-ref and sets the according
+    parameters. See **CONFIGURATION** above for available parameters.
+
+
+## Script Listing
+
+TODO: Describe the anatomy of script-listings.
+
+
+## Conditions
+
+TODO: Describe the way conditions are expressed.
+
+
+# EXIT CODES
+
+After \`*run_test_script*', TestTUI will exit with one of the exit codes listed
+here:
+
+`0`
+:   all good
+
+`1`
+:   test failed
+
+`2`
+:   until condition wasn't met
+
+`10`
+:   unexpected EOF while reading from child
+
+`11`
+:   write timeout
+
+`12`
+:   write failed
+
+`23`
+:   application-under-test died unexpectedly
+
+`42`
+:   something unexpected/disallowed found in test-script
+
+
+# SEE ALSO
+
+*IO::Pty::Easy*, *Term::VT102*
+
+
+# AUTHOR
+
+Frank Terbeck <ft@bewatermyfriend.org>
+
+
+# COPYRIGHT AND LICENCE
+
+Copyright (c) 2012 Frank Terbeck <ft@bewatermyfriend.org>, All rights
+reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+
+  1. Redistributions of source code must retain the above
+     copyright notice, this list of conditions and the following
+     disclaimer.
+  2. Redistributions in binary form must reproduce the above
+     copyright notice, this list of conditions and the following
+     disclaimer in the documentation and/or other materials
+     provided with the distribution.
+
+ THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESS OR IMPLIED
+ WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+ OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ DISCLAIMED. IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS OF THE
+ PROJECT BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
+ OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.

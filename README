@@ -1,0 +1,26 @@
+TestTUI - Framework for testing full-screen terminal applications
+
+REQUIREMENTS
+
+    IO::Pty::Easy from CPAN
+    Term::VT102 from CPAN
+
+    pandoc <http://johnmacfarlane.net/pandoc/> for building the documentation
+    in `doc/'.
+
+
+BUILDING THE DOCUMENTATION
+
+    % cd doc
+    % make all
+
+
+USAGE
+
+    See the manual `TestTUI.3' after BUILDING THE DOCUMENTATION and the
+    `example-script' file in the distribution's root directory.
+
+
+COPYRIGHT AND LICENCE
+
+    See the `LICENCE' file included in the distribution.
