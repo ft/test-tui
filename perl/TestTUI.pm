@@ -317,7 +317,8 @@ sub run_test_script {
     $child_pid = $pty->pid();
     $i = 0;
     foreach my $thing (@script) {
-        unexpected_death($thing, $i) unless ($pty->is_active);
+        unexpected_death($thing, $i) unless ($pty->is_active
+                                             || defined $thing->{programexit});
         deal($thing, $i);
         $i++;
     }
