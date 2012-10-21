@@ -1,25 +1,104 @@
 # -*- mode: cperl -*-
 
+# To run this in Test::TUI's source tree, do this:
+#
+#  % perl -Iperl ./example-script
+
+# This is a normal Perl script, so use strict.
+use strict;
+use warnings;
+
 use Test::TUI;
 
+my ($fifty_percent_slider);
+
+# Set some options for Test::TUI. This makes the execution very noisy and a tad
+# slower than it is normally, so you can follow what is going on.
 testtuiset { trace => 1,
              debug => 1,
              dump => 1,
              write_wait => 2000 };
 
+# First, define the application that we want to test. Note, that the following
+# are equal:
+#
+#   application_under_test("foobar", "-bar", "-baz");
+#
+#   application_under_test qw{ foobar -bar -baz;
+#
+# The command is NOT passed through a shell but called directly.
 application_under_test qw{ aumix };
 
+# Define some helper functions and costum conditions...
+sub extract_main_slider_80x24 {
+    # In 80x24 terminals, the main-slider will be here:
+    return terminal_plain_line(1, 13, 13+25);
+}
+
+sub check_fifty_percent {
+    $fifty_percent_slider = extract_main_slider_80x24();
+    my @result = split /O/, $fifty_percent_slider;
+    if ($#result != 1) {
+        print "# Slider does not contain exactly one `O'!\n";
+        return 0;
+    }
+    my ($l0, $l1) = map { length $_ } @result;
+
+    unless (abs($l1 - $l0) < 2) {
+        print "# Slider not in the middle ($fifty_percent_slider)\n";
+        return 0;
+    }
+    return 1;
+}
+
+# Now define the sequence of events we'd like to replicate each time this
+# script runs.
 test_script [
+    # Make sure `aumix' booted entirely, by checking if it has drawn a certain
+    # known part of its interface already. This timeouts at the default
+    # `until_timeout', which is exactly one second.
     { until => { string => "aumix",
                  line => 1,
                  length => 5 } },
+
+    # Send a `5' to aumix. This move the main output slider to 50%.
+    "5",
+
+    # Use a custom condition, to check whether the slider is actually in 50%
+    # position. Also, save the way the slider looks, so we can check if the
+    # slider returned to this position after we changed its position a bit.
+    { expect => \&check_fifty_percent },
+
+    # Now change the slider's position a bit. "---" means, that Test::TUI sends
+    # three dashes to aumix as quickly as it can. Note that multiple
+    # consecutive send steps in a test script will wait `write_wait' milli-
+    # seconds between writes (defaults to 100). So, the sequence below is *NOT*
+    # the same as: "---+++--++"
     "---",
     "+++",
     "-",
     "-",
     "+",
     "+",
+
+    # We dealt as many pluses as minuses here, so the slider should be in the
+    # same position as it was after the `5' we send above. Use an anonymous
+    # function as the custom condition to check if that's actually the case.
+    { expect => sub {
+          my $current_slider = extract_main_slider_80x24();
+          if ($current_slider ne $fifty_percent_slider) {
+              print "# Slider didn't return to original position.\n";
+              return 0;
+          }
+          return 1 } },
+
+    # Now send a `q' to aumix, which should cause it to terminate.
     "q",
+
+    # Wait for aumix to terminate and check if its exit-code is 0. This would
+    # timeout after `exit_timeout' milliseconds (which defaults to 5000).
     { programexit => 0 } ];
 
+# Now run the script that we just defined and exit with the appropriate exit
+# code (see the manual for details about those).
 run_test_script;
