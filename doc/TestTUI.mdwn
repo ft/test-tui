@@ -53,7 +53,7 @@ offers to manipulate.
 `debug`
 
 :   If enabled, TestTUI will emit lots of debugging information. (default:
-    **off**) [Not implemented yet]
+    **off**)
 
 `dump`
 

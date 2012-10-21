@@ -33,6 +33,7 @@ my (@application_under_test,
     $exit_timeout,
     $expect_wait,
     $trace,
+    $debug,
     $child_pid,
     $child_status);
 
@@ -55,6 +56,7 @@ $read_timeout = 2 / 1000;
 $write_timeout = 500 / 1000;
 $exit_timeout = 5e3;
 $trace = 0;
+$debug = 0;
 
 sub application_under_test {
     @application_under_test = @_;
@@ -89,6 +91,7 @@ sub testtuiset {
     until_fraction => sub { $until_fraction = $_[0] },
     write_timeout => sub { $write_timeout = $_[0] / 1000 },
     read_timeout => sub { $read_timeout = $_[0] / 1000 },
+    debug => sub { $debug = ($_[0] != 0) ? 1 : 0 },
     trace => sub { $trace = ($_[0] != 0) ? 1 : 0 }
 );
 
@@ -99,6 +102,10 @@ sub print_if {
 
 sub trace {
     print_if($trace, @_);
+}
+
+sub debug {
+    print_if($debug, @_);
 }
 
 sub use_if_defined {
@@ -123,6 +130,12 @@ sub tt_dump {
 
 sub read_a_bit {
     my $data = $pty->read($read_timeout);
+    my $l = (defined $data) ? length $data : 0;
+    if ($l > 0) {
+        debug("   -*- Sending $l byte(s) to terminal buffer\n");
+    } else {
+        #debug("   -*- Sending nothing to terminal buffer\n");
+    }
     $terminal->process($data);
 }
 
@@ -143,7 +156,9 @@ sub get_msec_timestamp {
 sub timeouted {
     my ($timeout, $timestamp) = @_;
     my $new = get_msec_timestamp();
-    return $new > ($timestamp + $timeout);
+    my $test = $timestamp + $timeout;
+    #debug("   -*- $new >? $test\n");
+    return $new > $test;
 }
 
 sub unexpected_death {
@@ -183,7 +198,7 @@ sub pty_write {
 
 sub check {
     my ($condition) = @_;
-    my ($expect, $actual, $type, $line, $start, $end);
+    my ($expect, $actual, $type, $line, $start, $end, $result);
 
     if (!defined $condition->{line}) {
         tt_dump("Condition without `line' definition:", $condition);
@@ -197,9 +212,12 @@ sub check {
     } else {
         $end = use_if_defined($condition->{end}, $terminal->cols());
     }
+    debug("   -*- line($line), start($start), end($end)\n");
 
     TYPES: foreach my $iter (qw{ string regexp }) {
+        debug("   -*- Checking for $iter condition.\n");
         if (defined $condition->{$iter}) {
+            debug("   -*- Picking $iter condition.\n");
             $expect = $condition->{$iter};
             $type = $iter;
             last TYPES;
@@ -215,9 +233,25 @@ sub check {
 
     trace("   -!- check: expect($expect), actual($actual)\n");
     if ($type eq q{regexp}) {
-        return $actual =~ m/$expect/;
+        $result = $actual =~ m/$expect/;
+        debug("   -*- regexp($actual =~ m/$expect/)\n");
+        debug("   -*- result: ");
+        if ($result) {
+            debug("true");
+        } else {
+            debug("false");
+        }
+        debug("\n");
     } else {
-        return $actual eq $expect;
+        $result = $actual eq $expect;
+        debug("   -*- string-match('$actual' eq '$expect')\n");
+        debug("   -*- result: ");
+        if ($result) {
+            debug("true");
+        } else {
+            debug("false");
+        }
+        debug("\n");
     }
 }
 
@@ -237,7 +271,12 @@ sub deal_expect {
     $condition = $data->{expect};
     $wait = (defined $data->{wait}) ? $data->{wait} : $expect_wait;
 
+    debug("   -*- Handling `expect' clause\n");
+    debug("   -*- Pre-expect-wait: $wait\n");
     tt_wait($wait);
+    if ($debug) {
+        tt_dump("   -*- `expect' condition:", $condition);
+    }
     if (!check($condition)) {
         fail(q{expect}, 1, $condition);
     }
@@ -247,9 +286,14 @@ sub deal_until {
     my ($data) = @_;
     my ($condition, $timeout, $timestamp);
 
+    debug("   -*- Handling `until' clause\n");
     $timestamp = get_msec_timestamp();
     $condition = $data->{until};
     $timeout = (defined $data->{timeout}) ? $data->{timeout} : $until_timeout;
+    debug("   -*- Timestamp: $timestamp; Timeout: $timeout\n");
+    if ($debug) {
+        tt_dump("   -*- `until' condition:", $condition);
+    }
     do {
         my ($data);
         if (timeouted($timeout, $timestamp)) {
@@ -263,6 +307,11 @@ sub deal_programexit {
     my ($code) = @_;
     my $timestamp = get_msec_timestamp();
 
+    debug("   -*- Handling `programexit' clause\n");
+    debug("   -*- Waiting for application-under-test exit");
+    debug(" (PID: $child_pid)\n");
+    debug("   -*- Timestamp: $timestamp; Timeout: $exit_timeout\n");
+    debug("   -*- Required exit-code: $code\n");
     while (!defined $child_status) {
         if (timeouted($exit_timeout, $timestamp)) {
             fail(q{programexit}, 2, $code);
@@ -279,6 +328,7 @@ sub deal {
     my ($thing, $num) = @_;
 
     if (ref $thing eq q{}) {
+        debug("   -*- Sending data to application-under-test:\n");
         pty_write($thing);
     } elsif (ref $thing eq q{HASH}) {
         if (defined $thing->{until}) {
@@ -301,21 +351,34 @@ sub deal {
 
 sub clean_exit {
     my ($rc) = @_;
-    $pty->close() if (defined $pty);
+    if (defined $pty) {
+        debug("   -*- Closing pty...\n");
+        $pty->close();
+    }
     exit $rc;
 }
 
 sub run_test_script {
     my ($i);
+    debug("   -*- Setting TERM=vt102\n");
     $ENV{TERM} = q{vt102};
+    debug("   -*- Generating 80x24 characters terminal\n");
     $terminal = Term::VT102->new(cols => 80,
                                  rows => 24);
     $pty = IO::Pty::Easy->new(handle_pty_size => 1,
                               raw => 0);
+    if ($debug) {
+        tt_dump("   -*- Spawning application-under-test:",
+                \@application_under_test);
+    }
     $pty->spawn(@application_under_test);
     $child_pid = $pty->pid();
+    debug("   -*- PID of application-under-test: $child_pid\n");
     $i = 0;
     foreach my $thing (@script) {
+        if ($debug) {
+            tt_dump("   -*- Current step in test-script:", $thing);
+        }
         unexpected_death($thing, $i) unless ($pty->is_active
                                              || defined $thing->{programexit});
         deal($thing, $i);
