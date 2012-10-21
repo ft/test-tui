@@ -56,7 +56,9 @@ sub check_fifty_percent {
 test_script [
     # Make sure `aumix' booted entirely, by checking if it has drawn a certain
     # known part of its interface already. This timeouts at the default
-    # `until_timeout', which is exactly one second.
+    # `until_timeout', which is exactly one second. `string' is actually one of
+    # the builtin conditions. Another would be `regexp'. See the manual for
+    # details on all of them.
     { until => { string => "aumix",
                  line => 1,
                  length => 5 } },
