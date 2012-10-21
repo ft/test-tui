@@ -451,4 +451,22 @@ sub run_test_script {
     clean_exit(0);
 }
 
+sub terminal_line {
+    return $terminal->row_text(@_);
+}
+
+sub terminal_plain_line {
+    return $terminal->row_plaintext(@_);
+}
+
+sub terminal_status {
+    return { state => 'inactive' } if (!defined $pty || !$pty->is_active());
+    return { state => 'active',
+             lines => $terminal->rows(),
+             columns => $terminal->cols(),
+             cursor_x => $terminal->x(),
+             cursor_y => $terminal->y(),
+             cursor_state => $terminal->cursor() };
+}
+
 1;
