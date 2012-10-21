@@ -223,6 +223,17 @@ sub check {
     my ($condition) = @_;
     my ($expect, $actual, $type, $line, $start, $end, $result);
 
+    if (ref $condition eq q{CODE}) {
+        debug("#    -*- Evaluating condition as coderef\n");
+        $result = $condition->();
+        if ($debug) {
+            tt_dump("   -*- Evaluating code reference revealed:", $result);
+        }
+        $result = $result ? q{true} : q{false};
+        trace("#    -!- Coderef-condition returned: $result\n");
+        return ($result eq q{true}) ? 1 : 0;
+    }
+
     if (!defined $condition->{line}) {
         tt_dump("Condition without `line' definition:", $condition);
         clean_exit(42);
