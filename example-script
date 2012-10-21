@@ -63,7 +63,7 @@ test_script [
                  line => 1,
                  length => 5 } },
 
-    # Send a `5' to aumix. This move the main output slider to 50%.
+    # Send a `5' to aumix. This moves the main output slider to 50%.
     "5",
 
     # Use a custom condition, to check whether the slider is actually in 50%
