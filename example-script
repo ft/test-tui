@@ -24,7 +24,7 @@ testtuiset { trace => 1,
 #
 #   application_under_test("foobar", "-bar", "-baz");
 #
-#   application_under_test qw{ foobar -bar -baz;
+#   application_under_test qw{ foobar -bar -baz };
 #
 # The command is NOT passed through a shell but called directly.
 application_under_test qw{ aumix };
