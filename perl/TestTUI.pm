@@ -351,6 +351,13 @@ sub deal {
     my ($thing, $num) = @_;
     my $need_wait = ($last_was_write > 0) ? 1 : 0;
 
+    if (ref $thing eq q{CODE}) {
+        $thing = $thing->();
+        if ($debug) {
+            tt_dump("   -*- Evaluating code reference revealed:", $thing);
+        }
+    }
+
     if (ref $thing eq q{}) {
         if ($need_wait) {
             debug("#    -*- Default wait due to consecutive write...\n");
@@ -415,13 +422,17 @@ sub run_test_script {
     $pty->spawn(@application_under_test);
     $child_pid = $pty->pid();
     debug("#    -*- PID of application-under-test: $child_pid\n");
+    if ($debug) {
+        tt_dump("   -*- Executing test-script:", \@script);
+    }
     $i = 0;
     foreach my $thing (@script) {
         if ($debug) {
             tt_dump("   -*- Current step in test-script:", $thing);
         }
         unexpected_death($thing, $i) unless ($pty->is_active
-                                             || defined $thing->{programexit});
+                                             || (ref $thing eq q{HASH} &&
+                                                 defined $thing->{programexit}));
         deal($thing, $i);
         $i++;
     }
