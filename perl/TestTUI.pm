@@ -32,11 +32,13 @@ my (@application_under_test,
     $until_fraction,
     $exit_timeout,
     $expect_wait,
+    $write_default_wait,
     $trace,
     $debug,
     $dump,
     $term_lines,
     $term_cols,
+    $last_was_write,
     $child_pid,
     $child_status);
 
@@ -53,6 +55,7 @@ sub REAPER {
 $SIG{CHLD} = \&REAPER;
 
 $expect_wait = 200;
+$write_default_wait = 100;
 $until_timeout = 1000;
 $until_fraction = $until_timeout / 10;
 $read_timeout = 2 / 1000;
@@ -63,6 +66,7 @@ $debug = 0;
 $dump = 0;
 $term_lines = 24;
 $term_cols = 80;
+$last_was_write = 0;
 
 sub application_under_test {
     @application_under_test = @_;
@@ -93,6 +97,7 @@ sub testtuiset {
 
 %setters = (
     expect_wait => sub { $expect_wait = $_[0] },
+    write_wait => sub { $write_default_wait = $_[0] },
     until_timeout => sub { $until_timeout = $_[0] },
     until_fraction => sub { $until_fraction = $_[0] },
     write_timeout => sub { $write_timeout = $_[0] / 1000 },
@@ -344,26 +349,35 @@ sub deal_programexit {
 
 sub deal {
     my ($thing, $num) = @_;
+    my $need_wait = ($last_was_write > 0) ? 1 : 0;
 
     if (ref $thing eq q{}) {
+        if ($need_wait) {
+            debug("#   -*- Default wait due to consecutive write...\n");
+            tt_wait($write_default_wait)
+        }
         debug("#   -*- Sending data to application-under-test:\n");
         pty_write($thing);
-    } elsif (ref $thing eq q{HASH}) {
-        if (defined $thing->{until}) {
-            deal_until($thing);
-        } elsif (defined $thing->{expect}) {
-            deal_expect($thing);
-        } elsif (defined $thing->{wait}) {
-            trace("#   -!- wait " . $thing->{wait} . "\n");
-            tt_wait($thing->{wait});
-        } elsif (defined $thing->{programexit}) {
-            trace("#   -!- wait-for-exit ($child_pid)\n");
-            deal_programexit($thing->{programexit});
+        $last_was_write = 1;
+    } else {
+        $last_was_write = 0;
+        if (ref $thing eq q{HASH}) {
+            if (defined $thing->{until}) {
+                deal_until($thing);
+            } elsif (defined $thing->{expect}) {
+                deal_expect($thing);
+            } elsif (defined $thing->{wait}) {
+                trace("#   -!- wait " . $thing->{wait} . "\n");
+                tt_wait($thing->{wait});
+            } elsif (defined $thing->{programexit}) {
+                trace("#   -!- wait-for-exit ($child_pid)\n");
+                deal_programexit($thing->{programexit});
+            } else {
+                broken_test_script($thing, $num);
+            }
         } else {
             broken_test_script($thing, $num);
         }
-    } else {
-        broken_test_script($thing, $num);
     }
 }
 

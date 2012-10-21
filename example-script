@@ -4,28 +4,21 @@ use TestTUI;
 
 testtuiset { trace => 1,
              debug => 1,
-             dump => 1 };
+             dump => 1,
+             write_wait => 2000 };
 
 application_under_test qw{ aumix };
-
-my $time = 1000;
 
 test_script [
     { until => { string => "aumix",
                  line => 1,
                  length => 5 } },
     "---",
-    { wait => $time },
     "+++",
-    { wait => $time },
     "-",
-    { wait => $time },
     "-",
-    { wait => $time },
     "+",
-    { wait => $time },
     "+",
-    { wait => $time },
     "q",
     { programexit => 0 } ];
 

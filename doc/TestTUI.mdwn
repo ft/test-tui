@@ -65,6 +65,11 @@ offers to manipulate.
 :   Defines the default \`*wait*' period before \`*expect*' calls. (default:
     **200**)
 
+`write_wait`
+
+:   Defines the default \`*wait*' period, that is initiated between two
+    consecutive writes in the test-script without any other action in between.
+
 `until_timeout`
 
 :   Defines the default timeout for \`*until*' calls. (default **1000**)
