@@ -2,7 +2,9 @@
 
 use TestTUI;
 
-testtuiset { trace => 1 };
+testtuiset { trace => 1,
+             debug => 1,
+             dump => 1 };
 
 application_under_test qw{ aumix };
 
