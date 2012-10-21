@@ -34,6 +34,7 @@ my (@application_under_test,
     $expect_wait,
     $trace,
     $debug,
+    $dump,
     $child_pid,
     $child_status);
 
@@ -57,6 +58,7 @@ $write_timeout = 500 / 1000;
 $exit_timeout = 5e3;
 $trace = 0;
 $debug = 0;
+$dump = 0;
 
 sub application_under_test {
     @application_under_test = @_;
@@ -92,6 +94,7 @@ sub testtuiset {
     write_timeout => sub { $write_timeout = $_[0] / 1000 },
     read_timeout => sub { $read_timeout = $_[0] / 1000 },
     debug => sub { $debug = ($_[0] != 0) ? 1 : 0 },
+    dump => sub { $dump = ($_[0] != 0) ? 1 : 0 },
     trace => sub { $trace = ($_[0] != 0) ? 1 : 0 }
 );
 
@@ -128,6 +131,14 @@ sub tt_dump {
     print "----------\n";
 }
 
+sub tt_terminal_dump {
+    print "---------- ---------- ---------- ----------\n";
+    for my $i (1 .. $terminal->rows()) {
+        print $terminal->row_plaintext($i), "\n";
+    }
+    print "---------- ---------- ---------- ----------\n";
+}
+
 sub read_a_bit {
     my $data = $pty->read($read_timeout);
     my $l = (defined $data) ? length $data : 0;
@@ -146,6 +157,7 @@ sub tt_wait {
     while (!timeouted($duration, $timestamp)) {
         read_a_bit();
     }
+    tt_terminal_dump() if ($dump);
 }
 
 sub get_msec_timestamp {
@@ -258,9 +270,7 @@ sub check {
 sub fail {
     my ($who, $rc, $condition) = @_;
     tt_dump("test failed in `$who' step:", $condition);
-    for my $i (1 .. $terminal->rows()) {
-        print $terminal->row_plaintext($i), "\n";
-    }
+    tt_terminal_dump();
     clean_exit($rc);
 }
 

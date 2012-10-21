@@ -58,7 +58,7 @@ offers to manipulate.
 `dump`
 
 :   If enabled, TestTUI dumps the contents of its terminal buffer after each
-    implicit or explicit \`*wait*'. (default: **off**) [Not implemented yet]
+    implicit or explicit \`*wait*'. (default: **off**)
 
 `expect_wait`
 
