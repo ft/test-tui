@@ -1,6 +1,6 @@
 # -*- mode: cperl -*-
 
-use TestTUI;
+use Test::TUI;
 
 testtuiset { trace => 1,
              debug => 1,
