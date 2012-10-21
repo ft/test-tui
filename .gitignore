@@ -1,0 +1,7 @@
+.*
+!.gitignore
+*~
+doc/*.[0-9]
+doc/*.pdf
+doc/*.html
+doc/*.info
