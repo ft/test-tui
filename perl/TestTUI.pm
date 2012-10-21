@@ -35,6 +35,8 @@ my (@application_under_test,
     $trace,
     $debug,
     $dump,
+    $term_lines,
+    $term_cols,
     $child_pid,
     $child_status);
 
@@ -59,6 +61,8 @@ $exit_timeout = 5e3;
 $trace = 0;
 $debug = 0;
 $dump = 0;
+$term_lines = 24;
+$term_cols = 80;
 
 sub application_under_test {
     @application_under_test = @_;
@@ -95,7 +99,9 @@ sub testtuiset {
     read_timeout => sub { $read_timeout = $_[0] / 1000 },
     debug => sub { $debug = ($_[0] != 0) ? 1 : 0 },
     dump => sub { $dump = ($_[0] != 0) ? 1 : 0 },
-    trace => sub { $trace = ($_[0] != 0) ? 1 : 0 }
+    trace => sub { $trace = ($_[0] != 0) ? 1 : 0 },
+    terminal_lines => sub { $term_lines = $_[0] },
+    terminal_columns => sub { $term_cols = $_[0] }
 );
 
 sub print_if {
@@ -254,6 +260,7 @@ sub check {
             debug("false");
         }
         debug("\n");
+        return $result;
     } else {
         $result = $actual eq $expect;
         debug("   -*- string-match('$actual' eq '$expect')\n");
@@ -264,6 +271,7 @@ sub check {
             debug("false");
         }
         debug("\n");
+        return $result;
     }
 }
 
@@ -372,9 +380,12 @@ sub run_test_script {
     my ($i);
     debug("   -*- Setting TERM=vt102\n");
     $ENV{TERM} = q{vt102};
-    debug("   -*- Generating 80x24 characters terminal\n");
-    $terminal = Term::VT102->new(cols => 80,
-                                 rows => 24);
+    $ENV{LINES} = $term_lines;
+    $ENV{COLUMNS} = $term_cols;
+    debug("   -*- Generating $term_cols"
+          . "x" . "$term_lines characters terminal\n");
+    $terminal = Term::VT102->new(cols => $term_cols,
+                                 rows => $term_lines);
     $pty = IO::Pty::Easy->new(handle_pty_size => 1,
                               raw => 0);
     if ($debug) {

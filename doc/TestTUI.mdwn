@@ -90,6 +90,14 @@ offers to manipulate.
     less granularity and less CPU time, whereas a lower values translates to
     higher granularity and more CPU time. (default: **5**)
 
+`terminal_lines`
+
+:   Defines the number of lines in the emulated terminal. (default: **24**)
+
+`terminal_columns`
+
+:   Defines the number of columns in the emulated terminal. (default: **80**)
+
 
 # API
 
