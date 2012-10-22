@@ -173,7 +173,7 @@ sub tt_wait {
 
 sub get_msec_timestamp {
     my ($sec, $usec) = gettimeofday();
-    return ($sec * 1000) + ($usec / 1000);
+    return ($sec * 1000) + floor($usec / 1000);
 }
 
 sub timeouted {
