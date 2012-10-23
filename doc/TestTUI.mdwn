@@ -37,6 +37,21 @@ module and thus offering the full power of the Perl language and ecosystem,
 TestTUI implements a simple domain specific language to describe how an
 application under test should behave.
 
+The way this works is fairly straight forward: First a pseudo-terminal is
+created for the application-under-test to be connected to (that feature is
+provided by the *IO::Pty::Easy* module). Then the execution environment is
+setup such that the terminal the application is running under is a \`**vt102**'
+of a certain size (the size defaults to 24 lines by 80 columns, but may be
+changed via configuration).
+
+Then the application is actually run and the framework steps through a
+user-defined script, that defines what data is fed into the program and what
+the expected reaction of the application should be. The framework always keeps
+reading from the application-under-test to keep a very consistent state of its
+idea of what the terminal would actually display. The workhorse that keeps that
+idea of the contents of the terminal accurate and updated is provided by the
+\`*Term::VT102*' module.
+
 
 # CONFIGURATION
 
