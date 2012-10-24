@@ -148,14 +148,182 @@ execution of the application under test.
     parameters. See **CONFIGURATION** above for available parameters.
 
 
-## Script Listing
+# SCRIPT LISTING
 
-TODO: Describe the anatomy of script-listings.
+A script listing (that is used as a test-script by the framework) is a sequence
+of steps, that either tell what data is send to the application-under-test or
+describe a condition, which test if the application exhibited an expected
+reaction. Such a listing is handed over to the framework as an array-reference
+to the \`**test_script**' API call.
+
+There are two different types of entries in a script listing (actually three,
+but the third one gets reduced to one of the other two): *strings* and
+*hash-references*.
+
+When a string is encountered, its characters are send to the
+application-under-test. Hash-references on the other hand signal some sort of
+advanced action (such as a tests, wait instructions and the like).
+
+The third item that may be part of the script is a *code-reference*. When it is
+encountered during the processing of the script, the code is executed and its
+return value is used in place of the code reference. Hence, such a
+code-reference may return either a string or a hash-reference and therefore
+does not introduce any additional rules to the ones described above.
+
+A complete and extensively commented example of a *Test::TUI* script can be
+found in the \``example-script`' file of the module's distribution.
 
 
-## Conditions
+## Hash-References
 
-TODO: Describe the way conditions are expressed.
+String entries in script listings are trivial. Code-references in script
+listings either return a string or a hash-reference. Thus, the one thing we
+need to described in further detail are hash-reference type entries.
+
+As it is with hashes, they may contain arbitrary key/value pairs. Obviously,
+only a number of keys are recognised by Test::TUI and only a subset of those
+decide what type of action a hash-ref entry in a test-script represents. Those
+type-defining keys are listed below. Note that these defining keys may not be
+mixed with each other, unless otherwise noted. Mixing them without such an
+exception, results in undefined behaviour.
+
+`unless`
+
+:   Checks a contition periodically until a timeout is reached or the condition
+    returns a true value. Among other things, \`*until*' expressions are useful
+    to make sure an application booted entirely by checking for a characteristic
+    part of its user interface being present.
+
+`expect`
+
+:   This checks a condition once and expects it to be true. Failing conditions
+    in \`*expect*' expressions cause the entire test to fail.
+
+`wait`
+
+:   Causes the execution to wait for defined period of time. As an exception,
+    \`*wait*' expressions may be combined with \`*expect*' expressions to define
+    a custom wait-period before \`*expect*' checks its condition.
+
+
+### \`expect'-Expressions
+
+\`*expect*' is used to check for conditions with the application under test
+when the \`*expect*' expression is encountered. Before checking the condition
+attached to it, \`*expect*' issues a delay, which defaults to the
+`**expect_wait**' configuration parameter. This period may be changed for
+individual expects by supplying a \`*wait*' key in the same hash-ref (the value
+should be an integer, which defines the waiting period in milliseconds).
+
+~~~~~~~ {.Perl}
+{ expect => CONDITION }
+~~~~~~~
+
+~~~~~~~ {.Perl}
+{ expect => CONDITION,
+  wait => DURATION }
+~~~~~~~
+
+If the condition is **not** met, the script will bail out signaling a failed
+test to its calling process.
+
+\`*expect*' is most useful if you created a defined situation and want to check
+whether the program was behaving apropriately. If you need to wait for
+something to happen for longer periods of time, \`*until*' - which is described
+below - is probably the more natural fit.
+
+
+### \`until'-Expressions
+
+To repetitively check for a condition until either the condition turns out to
+be met or a timeout is reached, the \`*until*' expression was introduced.
+
+~~~~~~~ {.Perl}
+{ until => CONDITION }
+~~~~~~~
+
+~~~~~~~ {.Perl}
+{ until => CONDITION,
+  timeout => DURATION }
+~~~~~~~
+
+A common use-case for \`*until*' is the beginning of a test-script, where you
+might want to make sure that the application-under-test was fully loaded,
+before the actual tests get evaluated.
+
+The supplied condition may fail multiple times, but has to be met before the
+expression's timeout is reached (which defaults to \`*until_timeout*' but may
+be modified for any given \`*until*' expression by supplying a \`*timeout*'
+key/valuepair in the expression's hash-ref). If the timeout is reached that
+will cause the test-script to fail. The appropriate exit-code will be signaled
+to the calling process.
+
+
+### \`wait'-Expressions
+
+The \`*wait*' expression causes the script-execution to be paused for
+**DURATION** milliseconds.
+
+~~~~~~~ {.Perl}
+{ wait => DURATION }
+~~~~~~~
+
+This expression ignores all other hash keys (unless it is used in connection
+with \`*expect*', in which case the wait key is actually just a parameter for
+expect).
+
+
+# CONDITIONS
+
+Conditions describe certain traits of the application-under-test's user
+interface. There are a number of built-in conditions, which are all expressed
+as hash-references. Custom conditions may be implemented in arbitrary Perl
+code, which needs to be handed over as a code reference or anonymous function
+(which actually is a code-ref as well). The \``example-script`' shows the use
+of built-in as well as custom conditions.
+
+The built-in conditions are described in the remainder of this section.
+
+
+## \`string'
+
+This condition does **exact** string matches, like Perl's \`eq' operator would.
+The general condition looks like this:
+
+~~~~~~~ {.Perl}
+{ string => EXPECTED-STRING,
+  line => LINE-TO-CHECK,
+  column => COLUMN-TO-START-IN,
+  length => LENGTH-OF-STRING }
+~~~~~~~
+
+Here, \`line', \`column' and \`length' define what part of the applcation's
+user-inface to compare to the string in \`string'. Instead of \`length', you
+may provide an \`end' parameter, which would define the column it which the
+string should end.
+
+The condition is met, if the input string matches the extracted string from the
+user interface.
+
+
+## \`regexp'
+
+Like anywhere else in Perl, there is also a built-in condition that uses Perl's
+regular expression as a testing-tool. The definition looks similar to the
+\`*string*' condition:
+
+~~~~~~~ {.Perl}
+{ regexp => REGULAR-EXPRESSION,
+  line => LINE-TO-CHECK,
+  column => COLUMN-TO-START-IN,
+  length => LENGTH-OF-STRING }
+~~~~~~~
+
+\`line', \`column', \`length' and \`end' behave exactly like they do with
+\`*string*'. They define a portion of the user interface that forms a string,
+which is then matched against the regular expression provided in \`regexp'.
+
+The condition is met, if the regular expression matches the string.
 
 
 # EXIT CODES
