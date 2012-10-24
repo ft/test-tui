@@ -2,6 +2,8 @@
 
 # Driver for testing Text-User-Interfaces (e.g. curses applications).
 
+package Test::TUI;
+
 use strict;
 use warnings;
 use diagnostics;
@@ -15,11 +17,11 @@ use POSIX qw{ floor :sys_wait_h };
 
 use Exporter;
 use base qw{ Exporter };
-use vars qw{ @EXPORT_OK };
-@EXPORT_OK = qw{ application_under_test
-                 run_test_script
-                 test_script
-                 testtuiset };
+use vars qw{ @EXPORT };
+@EXPORT = qw{ application_under_test
+              run_test_script
+              test_script
+              testtuiset };
 
 my (@application_under_test,
     @script,
@@ -451,22 +453,7 @@ sub run_test_script {
     clean_exit(0);
 }
 
-sub terminal_line {
-    return $terminal->row_text(@_);
-}
-
-sub terminal_plain_line {
-    return $terminal->row_plaintext(@_);
-}
-
-sub terminal_status {
-    return { state => 'inactive' } if (!defined $pty || !$pty->is_active());
-    return { state => 'active',
-             lines => $terminal->rows(),
-             columns => $terminal->cols(),
-             cursor_x => $terminal->x(),
-             cursor_y => $terminal->y(),
-             cursor_state => $terminal->cursor() };
-}
+sub __get_terminal { return $terminal }
+sub __get_pty { return $pty }
 
 1;

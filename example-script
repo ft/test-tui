@@ -8,7 +8,12 @@
 use strict;
 use warnings;
 
+# The main module...
 use Test::TUI;
+
+# ...and an auxiliary module for inpecting the user interface of the
+# application under test; this is useful for writing custom conditions.
+use Test::TUI::Inspect qw{ terminal_plain_line };
 
 my ($fifty_percent_slider);
 
