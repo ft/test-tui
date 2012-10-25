@@ -211,7 +211,7 @@ exception, results in undefined behaviour.
 \`*expect*' is used to check for conditions with the application under test
 when the \`*expect*' expression is encountered. Before checking the condition
 attached to it, \`*expect*' issues a delay, which defaults to the
-`**expect_wait**' configuration parameter. This period may be changed for
+\`**expect_wait**' configuration parameter. This period may be changed for
 individual expects by supplying a \`*wait*' key in the same hash-ref (the value
 should be an integer, which defines the waiting period in milliseconds).
 
