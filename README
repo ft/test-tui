@@ -1,4 +1,4 @@
-TestTUI - Framework for testing full-screen terminal applications
+Test::TUI - Framework for testing full-screen terminal applications
 
 REQUIREMENTS
 
@@ -17,7 +17,7 @@ BUILDING THE DOCUMENTATION
 
 USAGE
 
-    See the manual `TestTUI.3' after BUILDING THE DOCUMENTATION and the
+    See the manual `Test::TUI(3)' after BUILDING THE DOCUMENTATION and the
     `example-script' file in the distribution's root directory.
 
 

@@ -1,13 +1,13 @@
-% TestTUI(3) | Oct, 2012
+% Test::TUI(3) | Oct, 2012
 
 # NAME
 
-TestTUI - Framework for testing full-screen terminal applications
+Test::TUI - Framework for testing full-screen terminal applications
 
 # SYNOPSIS
 
 ~~~~~~~ {.Perl}
-use TestTUI;
+use Test::TUI;
 
 testtuiset { trace => 1,
              debug => 1 };
@@ -31,10 +31,10 @@ run_test_script;
 
 # DESCRIPTION
 
-The *TestTUI* module is a framework for user-interface testing of full-screen
+The *Test::TUI* module is a framework for user-interface testing of full-screen
 terminal applications (i.e. curses or s-lang applications). While being a Perl
 module and thus offering the full power of the Perl language and ecosystem,
-TestTUI implements a simple domain specific language to describe how an
+Test::TUI implements a simple domain specific language to describe how an
 application under test should behave.
 
 The way this works is fairly straight forward: First a pseudo-terminal is
@@ -55,24 +55,24 @@ idea of the contents of the terminal accurate and updated is provided by the
 
 # CONFIGURATION
 
-TestTUI can be configured by using the \`*testtuiset*' function described in
+Test::TUI can be configured by using the \`*testtuiset*' function described in
 **API** below. This section discusses the parameters, that \`*testtuiset*'
 offers to manipulate.
 
 `trace`
 
-:   If enabled, TestTUI prints a trace of characters it sends to the application
-    under test, as well as the actions it takes and the tests it performs.
-    (default: **off**)
+:   If enabled, Test::TUI prints a trace of characters it sends to the
+    application under test, as well as the actions it takes and the tests
+    it performs. (default: **off**)
 
 `debug`
 
-:   If enabled, TestTUI will emit lots of debugging information. (default:
+:   If enabled, Test::TUI will emit lots of debugging information. (default:
     **off**)
 
 `dump`
 
-:   If enabled, TestTUI dumps the contents of its terminal buffer after each
+:   If enabled, Test::TUI dumps the contents of its terminal buffer after each
     implicit or explicit \`*wait*'. (default: **off**)
 
 `expect_wait`
@@ -121,7 +121,7 @@ offers to manipulate.
 
 # API
 
-TestTUI's API defines its domain-specific language for describing the desired
+Test::TUI's API defines its domain-specific language for describing the desired
 execution of the application under test.
 
 `application_under_test`\ **PROGRAM-WITH-ARGUMENTS**
@@ -328,8 +328,8 @@ The condition is met, if the regular expression matches the string.
 
 # EXIT CODES
 
-After \`*run_test_script*', TestTUI will exit with one of the exit codes listed
-here:
+After \`*run_test_script*', Test::TUI will exit with one of the exit codes
+listed here:
 
 `0`
 :   all good
