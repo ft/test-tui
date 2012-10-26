@@ -15,6 +15,10 @@ use Test::TUI;
 # application under test; this is useful for writing custom conditions.
 use Test::TUI::Inspect qw{ terminal_plain_line };
 
+# Also, another auxiliary module, that implements helpers for dealing with the
+# underlying terminal (namely a `vt102' as implemented by Term::VT102).
+use Test::TUI::VT102 qw{ key };
+
 my ($fifty_percent_slider);
 
 # Set some options for Test::TUI. This makes the execution very noisy and a tad
@@ -56,6 +60,61 @@ sub check_fifty_percent {
     return 1;
 }
 
+# Finally, this function generates a part of the test script. A test-script is
+# just an list of things, that look a certain way; how we arrive at that list
+# is entirely up to us - thus, generating it on the fly is perfectly legal.
+#
+# Since this example enables Test::TUI's `debug' configuration parameter above,
+# you'll be able to see the entire generated test-script dumped somewhere at
+# the beginning of the example's execution.
+sub move_slider {
+    my ($mode) = @_;
+    my (@script, $up3, $down3, $up, $down);
+
+    if ($mode eq q{arrow}) {
+        $up = key(q{Right});
+        $down = key(q{Left});
+        if (!defined $up || !defined $down || $up eq q{} || $down eq q{}) {
+            print
+"# Warning: Either `Left' or `Right' was undefined in this system's `vt102'\n" .
+"#          termcap entry. Skipping arrow-based slider movement test.\n";
+            return @script;
+        }
+    } else {
+        $up = q{+};
+        $down = q{-};
+    }
+    $up3 = $up . $up . $up;
+    $down3 = $down . $down . $down;
+
+    @script = (
+        # Change the slider's position a bit. "---" means, that Test::TUI
+        # sends three dashes to aumix as quickly as it can. Note that multiple
+        # consecutive send steps in a test script will wait `write_wait' milli-
+        # seconds between writes (defaults to 100). So, the sequence below is
+        # *NOT* the same as: "---+++--++"
+        $down3,
+        $up3,
+        $down,
+        $down,
+        $up,
+        $up,
+
+        # We dealt as many ups as we did downs, so the slider should be in the
+        # same position as it was after the `5' we send above. Use an anonymous
+        # function as the custom condition to check if that's actually the
+        # case.
+        { expect => sub {
+              my $current_slider = extract_main_slider_80x24();
+              if ($current_slider ne $fifty_percent_slider) {
+                  print "# Slider didn't return to original position.\n";
+                  return 0;
+              }
+              return 1 } },
+    );
+    return @script;
+}
+
 # Now define the sequence of events we'd like to replicate each time this
 # script runs.
 test_script [
@@ -76,28 +135,15 @@ test_script [
     # slider returned to this position after we changed its position a bit.
     { expect => \&check_fifty_percent },
 
-    # Now change the slider's position a bit. "---" means, that Test::TUI sends
-    # three dashes to aumix as quickly as it can. Note that multiple
-    # consecutive send steps in a test script will wait `write_wait' milli-
-    # seconds between writes (defaults to 100). So, the sequence below is *NOT*
-    # the same as: "---+++--++"
-    "---",
-    "+++",
-    "-",
-    "-",
-    "+",
-    "+",
+    # Move the slider around with ASCII "+" and "-".
+    move_slider("ascii"),
 
-    # We dealt as many pluses as minuses here, so the slider should be in the
-    # same position as it was after the `5' we send above. Use an anonymous
-    # function as the custom condition to check if that's actually the case.
-    { expect => sub {
-          my $current_slider = extract_main_slider_80x24();
-          if ($current_slider ne $fifty_percent_slider) {
-              print "# Slider didn't return to original position.\n";
-              return 0;
-          }
-          return 1 } },
+    # Move the slider around with the VT102's left and right arrows. Since
+    # arrows and plus/minus should behave the same, we check for exactly the
+    # same outcome. And since we don't want to repeat outselves needlessly,
+    # we're implementing this part of the test-script by a function, that
+    # generates these parts for us accordingly.
+    move_slider("arrow"),
 
     # Now send a `q' to aumix, which should cause it to terminate.
     "q",
