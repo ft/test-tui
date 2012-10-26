@@ -48,7 +48,7 @@ sub REAPER {
     my $pid;
 
     while (($pid = waitpid(-1, WNOHANG)) > 0) {
-        if ($pid == $child_pid) {
+        if (defined $child_pid && $pid == $child_pid) {
             $child_status = $CHILD_ERROR;
         }
     }
