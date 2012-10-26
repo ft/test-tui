@@ -4,6 +4,38 @@
 #
 #  % perl -Iperl ./example-script
 
+# This is an example script to demonstrate the usage of Test::TUI and some of
+# its auxiliary modules. To do that, this script implements a test run through
+# `aumix', a terminal-user-interface audio mixer.
+#
+# `aumix' works like this: It provides textual volume sliders that look like
+# this:
+#
+#    ++++++++++++++++++O++++++
+#
+# The `O' represents the slider position, the pluses represent the length over
+# which that slider may be pushed. To manipiulate the slider's position, you
+# have several options:
+#
+#  a) Press a digit key, such as `5', which will move the slider to the 50%
+#     mark. Similarly, `2' moves it to 20%.
+#
+#  b) Press `+' or `-' to move the slider right or left by exactly one
+#     character-cell.
+#
+#  c) Press the Left or Right arrow keys, which works like `-' and `+'.
+#
+# There are more things you could do, but this is a nice set, that allows us to
+# demonstrate quite a few of Test::TUIs features.
+#
+# This script tests the following:
+#
+#  - Does `5' move the slider to 50%?
+#  - Move the slider around using +/-; see if the position changes correctly.
+#  - Do the same for arrow keys instead of +/-.
+#  - Tell the program to exit, by sending a `q' character to it.
+#  - Check is the program actually exits and if the return code is 0 (success).
+
 # This is a normal Perl script, so use strict.
 use strict;
 use warnings;
