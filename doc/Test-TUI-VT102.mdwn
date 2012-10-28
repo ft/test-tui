@@ -1,0 +1,89 @@
+# NAME
+
+Test::TUI::VT102 - Auxiliary module for handling \`vt102' terminals
+
+
+# SYNOPSIS
+
+~~~~~~~ {.Perl}
+use Test::TUI::VT102 qw{ key };
+
+my ($right, $left);
+
+$right = key('Right');
+$left = key('Left');
+~~~~~~~
+
+
+# DESCRIPTION
+
+Some handling of terminals is rather complicated and involves querying
+databases such as \`**termcap**'. This module implements helpers to ease
+writing that sort of code.
+
+An example would be finding out what escape-sequences the \`vt102' terminal
+recognises for key-presses of special-keys such as the function keys, the
+cursor/arrow-keys, home/end etc. That problem is solved by the \`**key**'
+function, with the help of the \`**Term::Cap**' module.
+
+
+# API
+
+None of the functions listed here are exported automatically by default. You
+either name them fully qualified or supply an import-list when importing the
+module's code into your script.
+
+`key`\ KEY-NAME
+
+:   Looks up the proper escape sequence for the special key defined by
+    \`**KEY-NAME**' for \`vt102' terminals by looking it up in the system's
+    termcap database (lookup implemented by the *Term::Cap* module). If
+    \`**KEY-NAME**' is unknown to \`Test::TUI::VT102', \`*key*' returns
+    \`**undef**'. If the system's termcap database does not contain a
+    escape-sequence for the requested key, an empty string is returned.
+    Otherwise the escape-sequence is returned.
+
+
+\`**KEY-NAME**' may be one of the following: *F1*..*F24*, *Home*, *End*,
+*Insert*, *Backspace*, *Delete*, *Up*, *Down*, *Left*, *Right*, *PageUp*,
+*PageDown*. These lookup strings are **case-sensitive**.
+
+
+# SEE ALSO
+
+*Test::TUI*, *Term::VT102*, *Term::Cap*
+
+
+# AUTHOR
+
+Frank Terbeck <ft@bewatermyfriend.org>
+
+
+# COPYRIGHT AND LICENCE
+
+Copyright (c) 2012 Frank Terbeck <ft@bewatermyfriend.org>, All rights
+reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+
+  1. Redistributions of source code must retain the above
+     copyright notice, this list of conditions and the following
+     disclaimer.
+  2. Redistributions in binary form must reproduce the above
+     copyright notice, this list of conditions and the following
+     disclaimer in the documentation and/or other materials
+     provided with the distribution.
+
+ THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESS OR IMPLIED
+ WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+ OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ DISCLAIMED. IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS OF THE
+ PROJECT BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
+ OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
