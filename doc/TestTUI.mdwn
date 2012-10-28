@@ -1,5 +1,3 @@
-% Test::TUI(3) | Oct, 2012
-
 # NAME
 
 Test::TUI - Framework for testing full-screen terminal applications
