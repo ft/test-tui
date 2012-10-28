@@ -1,0 +1,92 @@
+# NAME
+
+Test::TUI::Inspect - Inspect Test::TUI's emulated terminal
+
+
+# SYNOPSIS
+
+~~~~~~~ {.Perl}
+# Part from `example-script':
+
+use Test::TUI::Inspect qw{ terminal_plain_line };
+
+sub extract_main_slider_80x24 {
+    return terminal_plain_line(1, 13, 13+25);
+}
+~~~~~~~
+
+
+# DESCRIPTION
+
+To write custom conditions, it is commonly required to "take a look" at
+Test::TUI's internal emulate terminal in order to see whether or not the
+condition is met. This module implements a few functions to do just that.
+
+
+# API
+
+None of the functions listed here are exported automatically by default. You
+either name them fully qualified or supply an import-list when importing the
+module's code into your script.
+
+`terminal_line`
+
+:   Return a line from the internal terminal buffer. This uses \`row_text()'
+    from **Term::VT102**. See that module's reference manual for details.
+
+`terminal_plain_line`
+
+:   Like \`*terminal_line*', but uses \`row_plaintext()' from
+    **Term::VT102** instead. See that module's reference manual for
+    details.
+
+`terminal_status`
+
+:   Queries the status of the internal terminal and returns its findings as
+    a hash-ref. The key that is always available is \`*state*', which is either
+    **"inactive"** or **"active"**. If it is inactive, there will be no other
+    defined keys. In case the terminal is active, the following keys are
+    available, as well: *lines* and *columns* represent the size of the
+    internal terminal; *cursor_x* and *cursor_y* describe the position of the
+    terminal's cursor; *cursor_state* states whether or not the terminal's
+    cursor is visible or not.
+
+
+# SEE ALSO
+
+*Test::TUI*, *Term::VT102*
+
+
+# AUTHOR
+
+Frank Terbeck <ft@bewatermyfriend.org>
+
+
+# COPYRIGHT AND LICENCE
+
+Copyright (c) 2012 Frank Terbeck <ft@bewatermyfriend.org>, All rights
+reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+
+  1. Redistributions of source code must retain the above
+     copyright notice, this list of conditions and the following
+     disclaimer.
+  2. Redistributions in binary form must reproduce the above
+     copyright notice, this list of conditions and the following
+     disclaimer in the documentation and/or other materials
+     provided with the distribution.
+
+ THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESS OR IMPLIED
+ WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+ OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ DISCLAIMED. IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS OF THE
+ PROJECT BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
+ OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
