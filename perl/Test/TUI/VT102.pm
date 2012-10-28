@@ -61,7 +61,12 @@ $termcap = Term::Cap->Tgetent({ TERM => "vt102",
 sub key {
     my ($k) = @_;
     my $tc = $keys{$k};
-    return (defined $tc) ? $termcap->{"_$tc"} : q{};
+    my $seq = $termcap->{"_$tc"};
+    # undef: Test::TUI::VT102 doesn't support $k.
+    # empty: The system's `vt102' termcap doesn't support $k.
+    return (defined $tc)
+               ? ((defined $seq) ? $seq : q{})
+               : undef;
 }
 
 1;
