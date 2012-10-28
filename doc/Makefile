@@ -1,4 +1,4 @@
-PROJECT = TestTUI
+PROJECT = Test-TUI
 
 .SUFFIXES:
 .SUFFIXES: .mdwn .pdf .html .3
