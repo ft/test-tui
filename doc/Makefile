@@ -6,6 +6,7 @@ MANUALS += Test-TUI-VT102.html Test-TUI-VT102.pdf
 COMMONOPTIONS = --self-contained --number-sections --normalize --smart --toc
 
 TEX_META = -V date='\today' --highlight-style=monochrome
+HTML_META = -c manual.css
 
 MAIN_TEX_META = -V author="Frank Terbeck"
 MAIN_TEX_META += -V title="Test::TUI(3) Reference Manual"
@@ -32,21 +33,21 @@ Test-TUI.3: Test-TUI.mdwn Makefile
 Test-TUI.pdf: Test-TUI.mdwn Makefile
 	pandoc --template template.latex ${COMMONOPTIONS} ${TEX_META} ${MAIN_TEX_META} -o $@ $<
 Test-TUI.html: Test-TUI.mdwn Makefile
-	pandoc -t html5 ${COMMONOPTIONS} ${MAIN_HTML_META} -o $@ $<
+	pandoc -t html5 ${HTML_META} ${COMMONOPTIONS} ${MAIN_HTML_META} -o $@ $<
 
 Test-TUI-Inspect.3: Test-TUI-Inspect.mdwn Makefile
 	pandoc -t man ${COMMONOPTIONS} ${INSPECT_MAN_META} -o $@ $<
 Test-TUI-Inspect.pdf: Test-TUI-Inspect.mdwn Makefile
 	pandoc --template template.latex ${COMMONOPTIONS} ${TEX_META} ${INSPECT_TEX_META} -o $@ $<
 Test-TUI-Inspect.html: Test-TUI-Inspect.mdwn Makefile
-	pandoc -t html5 ${COMMONOPTIONS} ${INSPECT_HTML_META} -o $@ $<
+	pandoc -t html5 ${HTML_META} ${COMMONOPTIONS} ${INSPECT_HTML_META} -o $@ $<
 
 Test-TUI-VT102.3: Test-TUI-VT102.mdwn Makefile
 	pandoc -t man ${COMMONOPTIONS} ${VT102_MAN_META} -o $@ $<
 Test-TUI-VT102.pdf: Test-TUI-VT102.mdwn Makefile
 	pandoc --template template.latex ${COMMONOPTIONS} ${TEX_META} ${VT102_TEX_META} -o $@ $<
 Test-TUI-VT102.html: Test-TUI-VT102.mdwn Makefile
-	pandoc -t html5 ${COMMONOPTIONS} ${VT102_HTML_META} -o $@ $<
+	pandoc -t html5 ${HTML_META} ${COMMONOPTIONS} ${VT102_HTML_META} -o $@ $<
 
 clean:
 	rm -f ${MANUALS} *~
