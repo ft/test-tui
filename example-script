@@ -60,6 +60,13 @@ testtuiset { trace => 1,
              dump => 1,
              write_wait => 2000 };
 
+# Test::TUI uses Data::Dumper for some of its informational and debugging
+# output. Subroutines are usually represented by dummy-code. Setting the
+# following variable forces Data::Dumper to turn code-refs back into Perl code,
+# which is rather enlightening in some cases. See Data::Dumper's reference
+# documentation as well as B::Deparse for details on that feature.
+$Data::Dumper::Deparse = 1;
+
 # First, define the application that we want to test. Note, that the following
 # are equal:
 #
