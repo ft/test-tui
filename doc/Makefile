@@ -1,7 +1,6 @@
 MAN = Test-TUI.3 Test-TUI-Inspect.3 Test-TUI-VT102.3
-MANUALS = ${MAN} Test-TUI.html Test-TUI.pdf
-MANUALS += Test-TUI-Inspect.html Test-TUI-Inspect.pdf
-MANUALS += Test-TUI-VT102.html Test-TUI-VT102.pdf
+PDF = Test-TUI.pdf Test-TUI-Inspect.pdf Test-TUI-VT102.pdf
+HTML = Test-TUI.html Test-TUI-Inspect.html Test-TUI-VT102.html
 
 COMMONOPTIONS = --self-contained --number-sections --normalize --smart --toc
 
@@ -25,8 +24,10 @@ VT102_HTML_META = ${VT102_TEX_META} --highlight-style=monochrome
 VT102_MAN_META = -V title="Test::TUI::VT102" -V section="3"
 VT102_MAN_META += -V date="Oct, 2012"
 
-all: ${MANUALS}
+all: man html pdf
 man: ${MAN}
+pdf: ${PDF}
+html: ${HTML}
 
 Test-TUI.3: Test-TUI.mdwn Makefile
 	pandoc -t man ${COMMONOPTIONS} ${MAIN_MAN_META} -o $@ $<
@@ -52,4 +53,4 @@ Test-TUI-VT102.html: Test-TUI-VT102.mdwn Makefile
 clean:
 	rm -f ${MANUALS} *~
 
-.PHONY: all man clean
+.PHONY: all man html pdf clean
