@@ -51,6 +51,6 @@ Test-TUI-VT102.html: Test-TUI-VT102.mdwn Makefile
 	pandoc -t html5 ${HTML_META} ${COMMONOPTIONS} ${VT102_HTML_META} -o $@ $<
 
 clean:
-	rm -f ${MANUALS} *~
+	rm -f ${HTML} ${PDF} ${MAN} *~
 
 .PHONY: all man html pdf clean
