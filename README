@@ -11,8 +11,20 @@ REQUIREMENTS
 
 BUILDING THE DOCUMENTATION
 
+    You may build documentation in man-page format, HTML and PDF. Manpages
+    and HTML are fairly straight forward. PDF output requires a latex
+    implementation such as pdflatex from texlive (pandoc generates latex
+    sources and uses latex to generate PDF). The `all' target builds all
+    formats. There are `man', `html' and `pdf' targets to build the other
+    formats. The default target is `all'.
+
     % cd doc
+    % make
     % make all
+    % make man
+    % make html
+    % make man html
+    % make pdf
 
 
 USAGE
