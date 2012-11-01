@@ -1,0 +1,19 @@
+Source: libtest-tui-perl
+Section: perl
+Priority: extra
+Maintainer: Michael Prokop <mika@grml.org>
+Build-Depends: debhelper (>= 9),
+               pandoc
+Standards-Version: 3.9.4
+Homepage: https://github.com/ft/test-tui
+
+Package: libtest-tui-perl
+Architecture: all
+Depends: libio-pty-easy-perl,
+         libterm-vt102-perl,
+         ${misc:Depends},
+         ${perl:Depends}
+Description: Framework for testing full-screen terminal applications
+ This package provides the Test::TUI Perl module to
+ test full-screen terminal applications in an automated
+ fashion.
