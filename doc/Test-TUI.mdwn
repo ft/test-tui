@@ -208,6 +208,12 @@ exception, results in undefined behaviour.
     so it can tell whether or not tests where skipped or not. Valid values for
     this are either the string "noplan" or positive non-zero integer.
 
+`programexit`
+
+:   Causes the script to wait for the application to exit and compare the
+    actual return value to the one specified in the expression. The timeout
+    for the exit to happen is currently hardcoded at 5000 milliseconds.
+
 `wait`
 
 :   Causes the execution to wait for defined period of time. As an exception,
