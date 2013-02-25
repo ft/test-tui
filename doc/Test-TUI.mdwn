@@ -13,8 +13,8 @@ testtuiset { trace => 1,
 application_under_test "aumix";
 
 test_script [
-    { title => "check if aumix starts up normally" },
-    { until => { string => "aumix",
+    { title => q{aumix started up normally},
+      until => { string => "aumix",
                  line => 1,
                  lendgth => 5 } },
     "+++",
@@ -172,6 +172,9 @@ does not introduce any additional rules to the ones described above.
 A complete and extensively commented example of a *Test::TUI* script can be
 found in the \``example-script`' file of the module's distribution.
 
+It is important to note, that **every** test script **has** to start with a
+`plan` directive (see below for details).
+
 
 ## Hash-References
 
@@ -198,16 +201,29 @@ exception, results in undefined behaviour.
 :   This checks a condition once and expects it to be true. Failing conditions
     in \`*expect*' expressions cause the entire test to fail.
 
-`title`
+`plan`
 
-:   If set, this string is used as the test's title in TAP output. If it is
-    unset (which is the default), then the test's file name is used.
+:   The first entry in a test script has to be an entry that describes how
+    many tests you are planning to run. This is information for the TAP harness
+    so it can tell whether or not tests where skipped or not. Valid values for
+    this are either the string "noplan" or positive non-zero integer.
 
 `wait`
 
 :   Causes the execution to wait for defined period of time. As an exception,
     \`*wait*' expressions may be combined with \`*expect*' expressions to define
     a custom wait-period before \`*expect*' checks its condition.
+
+
+The `expect`, `programexit` and `until` expressions define actual tests. Each
+of these expressions will cause a line of output in the script's TAP output,
+that looks roughly like this:
+
+    ok 23 - descriptive text here
+
+The *"descriptive text"* part is configurable by adding a `title` key to the
+expression in question. See the short code in the *SYNOPSIS* section for an
+example.
 
 
 ### \`expect'-Expressions

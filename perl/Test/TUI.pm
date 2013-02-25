@@ -38,9 +38,10 @@ my (@application_under_test,
     $trace,
     $debug,
     $dump,
+    $scriptplan,
+    $numberoftests,
     $term_lines,
     $term_cols,
-    $title,
     $last_was_write,
     $child_pid,
     $child_status);
@@ -70,6 +71,7 @@ $dump = 0;
 $term_lines = 24;
 $term_cols = 80;
 $last_was_write = 0;
+$numberoftests = 0;
 
 sub application_under_test {
     @application_under_test = @_;
@@ -78,6 +80,14 @@ sub application_under_test {
 sub test_script {
     my ($script) = @_;
     @script = @{ $script };
+    if ($#script < 0) {
+        print "# test-script is empty!\n";
+        clean_exit(42);
+    }
+    if (ref $script[0] ne q{HASH} || !defined $script[0]->{plan}) {
+        print "# test-script misses plan at its top!\n";
+        clean_exit(42);
+    }
 }
 
 sub testtuiset {
@@ -295,16 +305,19 @@ sub check {
 }
 
 sub fail {
-    my ($who, $rc, $condition) = @_;
+    my ($who, $title, $rc, $condition) = @_;
     tt_dump("test failed in `$who' step:", $condition);
     tt_terminal_dump();
+    print "nok $numberoftests - $title\n";
     clean_exit($rc);
 }
 
 sub deal_expect {
     my ($data) = @_;
-    my ($condition, $wait);
+    my ($condition, $wait, $title);
 
+    $numberoftests++;
+    $title = use_if_defined($data->{title}, q{expect});
     $condition = $data->{expect};
     $wait = (defined $data->{wait}) ? $data->{wait} : $expect_wait;
 
@@ -315,14 +328,17 @@ sub deal_expect {
         tt_dump("   -*- `expect' condition:", $condition);
     }
     if (!check($condition)) {
-        fail(q{expect}, 1, $condition);
+        fail(q{expect}, $title, $title, 1, $condition);
     }
+    print "ok $numberoftests - $title\n";
 }
 
 sub deal_until {
     my ($data) = @_;
-    my ($condition, $timeout, $timestamp);
+    my ($condition, $timeout, $timestamp, $title);
 
+    $numberoftests++;
+    $title = use_if_defined($data->{title}, q{until});
     debug("#    -*- Handling `until' clause\n");
     $timestamp = get_msec_timestamp();
     $condition = $data->{until};
@@ -334,16 +350,18 @@ sub deal_until {
     do {
         my ($data);
         if (timeouted($timeout, $timestamp)) {
-            fail(q{until}, 2, $condition);
+            fail(q{until}, $title, 2, $condition);
         }
         tt_wait($until_fraction);
     } while (!check($condition));
+    print "ok $numberoftests - $title\n";
 }
 
 sub deal_programexit {
-    my ($code) = @_;
+    my ($code, $title) = @_;
     my $timestamp = get_msec_timestamp();
 
+    $numberoftests++;
     debug("#    -*- Handling `programexit' clause\n");
     debug("#    -*- Waiting for application-under-test exit");
     debug(" (PID: $child_pid)\n");
@@ -351,14 +369,23 @@ sub deal_programexit {
     debug("#    -*- Required exit-code: $code\n");
     while (!defined $child_status) {
         if (timeouted($exit_timeout, $timestamp)) {
-            fail(q{programexit}, 2, $code);
+            fail(q{programexit}, $title, 2, $code);
         }
     }
 
     trace("#    -!- expected return-code: $code, actual: $child_status\n");
     if ($child_status != $code) {
-        fail(q{programexit}, 1, $code);
+        fail(q{programexit}, $title, 1, $code);
     }
+    print "ok $numberoftests - $title\n";
+}
+
+sub deal_plan {
+    my ($plan) = @_;
+
+    $scriptplan = $plan;
+    return if ($plan eq q{noplan});
+    print "1..$plan\n";
 }
 
 sub deal {
@@ -392,9 +419,11 @@ sub deal {
                 tt_wait($thing->{wait});
             } elsif (defined $thing->{programexit}) {
                 trace("#    -!- wait-for-exit ($child_pid)\n");
-                deal_programexit($thing->{programexit});
-            } elsif (defined $thing->{title}) {
-                $title = $thing->{title};
+                deal_programexit($thing->{programexit},
+                                 use_if_defined($thing->{title},
+                                                q{programexit}));
+            } elsif (defined $thing->{plan}) {
+                deal_plan($thing->{plan});
             } else {
                 broken_test_script($thing, $num);
             }
@@ -410,18 +439,14 @@ sub clean_exit {
         debug("#    -*- Closing pty...\n");
         $pty->close();
     }
-    $title = $0 if (!defined $title);
-    if ($rc == 0) {
-        print "ok 1 - $title\n";
-    } else {
-        print "nok 1 - $title\n";
+    if (defined $scriptplan && $scriptplan eq q{noplan}) {
+        print "1..$numberoftests\n";
     }
     exit $rc;
 }
 
 sub run_test_script {
     my ($i);
-    print "1..1\n";
     debug("#    -*- Setting TERM=vt102\n");
     $ENV{TERM} = q{vt102};
     $ENV{LINES} = $term_lines;

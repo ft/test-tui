@@ -3,6 +3,15 @@
 # To run this in Test::TUI's source tree, do this:
 #
 #  % perl -Iperl ./example-script
+#
+# You can also let Perl's `prove' harness run the script and see how that would
+# look like:
+#
+#  % prove -Iperl ./example-script
+#
+# Or for more verbosity:
+#
+#  % prove -Iperl -v ./example-script
 
 # This is an example script to demonstrate the usage of Test::TUI and some of
 # its auxiliary modules. To do that, this script implements a test run through
@@ -143,7 +152,8 @@ sub move_slider {
         # same position as it was after the `5' we send above. Use an anonymous
         # function as the custom condition to check if that's actually the
         # case.
-        { expect => sub {
+        { title => "moving slider around using $mode keys",
+          expect => sub {
               my $current_slider = extract_main_slider_80x24();
               if ($current_slider ne $fifty_percent_slider) {
                   print "# Slider didn't return to original position.\n";
@@ -157,12 +167,33 @@ sub move_slider {
 # Now define the sequence of events we'd like to replicate each time this
 # script runs.
 test_script [
+    # The first entry in a test script has to be an entry that describes how
+    # many tests you are planning to run. This is information for the TAP
+    # harness so it can tell whether or not tests where skipped or not.
+    #
+    # If you do not know how many tests you are going to run, set this to the
+    # "noplan" string. If you do, specify the according integer.
+    #
+    # Every `until', `expect' and `programexit' directive is a test.
+    { plan => 5 },
+
     # Make sure `aumix' booted entirely, by checking if it has drawn a certain
     # known part of its interface already. This timeouts at the default
     # `until_timeout', which is exactly one second. `string' is actually one of
     # the builtin conditions. Another would be `regexp'. See the manual for
     # details on all of them.
-    { until => { string => "aumix",
+    #
+    # Each testing directive (that would be `until' like here, `expect' or
+    # `programexit') may define a title that will turn up in the TAP output
+    # while the script is running:
+    #
+    #    ok 1 - application starts up normally
+    #
+    # If you do not specify a title, the type of directive is used instead:
+    #
+    #    ok 1 - until
+    { title => "application starts up normally",
+      until => { string => "aumix",
                  line => 1,
                  length => 5 } },
 
@@ -172,7 +203,8 @@ test_script [
     # Use a custom condition, to check whether the slider is actually in 50%
     # position. Also, save the way the slider looks, so we can check if the
     # slider returned to this position after we changed its position a bit.
-    { expect => \&check_fifty_percent },
+    { title => "slider moves to 50% position",
+      expect => \&check_fifty_percent },
 
     # Move the slider around with ASCII "+" and "-".
     move_slider("ascii"),
@@ -189,7 +221,8 @@ test_script [
 
     # Wait for aumix to terminate and check if its exit-code is 0. This would
     # timeout after `exit_timeout' milliseconds (which defaults to 5000).
-    { programexit => 0 } ];
+    { title => "application exited normally",
+      programexit => 0 } ];
 
 # Now run the script that we just defined and exit with the appropriate exit
 # code (see the manual for details about those).
