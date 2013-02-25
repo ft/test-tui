@@ -13,6 +13,7 @@ testtuiset { trace => 1,
 application_under_test "aumix";
 
 test_script [
+    { title => "check if aumix starts up normally" },
     { until => { string => "aumix",
                  line => 1,
                  lendgth => 5 } },
@@ -197,6 +198,11 @@ exception, results in undefined behaviour.
 :   This checks a condition once and expects it to be true. Failing conditions
     in \`*expect*' expressions cause the entire test to fail.
 
+`title`
+
+:   If set, this string is used as the test's title in TAP output. If it is
+    unset (which is the default), then the test's file name is used.
+
 `wait`
 
 :   Causes the execution to wait for defined period of time. As an exception,
@@ -366,8 +372,8 @@ Frank Terbeck <ft@bewatermyfriend.org>
 
 # COPYRIGHT AND LICENCE
 
-Copyright (c) 2012 Frank Terbeck <ft@bewatermyfriend.org>, All rights
-reserved.
+Copyright (c) 2012-2013 Frank Terbeck <ft@bewatermyfriend.org>, All
+rights reserved.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions

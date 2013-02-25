@@ -40,6 +40,7 @@ my (@application_under_test,
     $dump,
     $term_lines,
     $term_cols,
+    $title,
     $last_was_write,
     $child_pid,
     $child_status);
@@ -392,6 +393,8 @@ sub deal {
             } elsif (defined $thing->{programexit}) {
                 trace("#    -!- wait-for-exit ($child_pid)\n");
                 deal_programexit($thing->{programexit});
+            } elsif (defined $thing->{title}) {
+                $title = $thing->{title};
             } else {
                 broken_test_script($thing, $num);
             }
@@ -407,10 +410,11 @@ sub clean_exit {
         debug("#    -*- Closing pty...\n");
         $pty->close();
     }
+    $title = $0 if (!defined $title);
     if ($rc == 0) {
-        print "ok 1 - $0\n";
+        print "ok 1 - $title\n";
     } else {
-        print "nok 1 - $0\n";
+        print "nok 1 - $title\n";
     }
     exit $rc;
 }
