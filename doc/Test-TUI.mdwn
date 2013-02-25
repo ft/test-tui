@@ -189,7 +189,7 @@ type-defining keys are listed below. Note that these defining keys may not be
 mixed with each other, unless otherwise noted. Mixing them without such an
 exception, results in undefined behaviour.
 
-`unless`
+`until`
 
 :   Checks a contition periodically until a timeout is reached or the condition
     returns a true value. Among other things, \`*until*' expressions are useful
