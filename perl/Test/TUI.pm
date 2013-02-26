@@ -110,6 +110,7 @@ sub testtuiset {
 
 %setters = (
     expect_wait => sub { $expect_wait = $_[0] },
+    exit_timeout => sub { $exit_timeout = $_[0] },
     write_wait => sub { $write_default_wait = $_[0] },
     until_timeout => sub { $until_timeout = $_[0] },
     until_fraction => sub { $until_fraction = $_[0] },

@@ -74,6 +74,10 @@ offers to manipulate.
 :   If enabled, Test::TUI dumps the contents of its terminal buffer after each
     implicit or explicit \`*wait*'. (default: **off**)
 
+`exit_timeout`
+
+:   Defines the default for the \`*programexit*' calls. (default: *5000*)
+
 `expect_wait`
 
 :   Defines the default \`*wait*' period before \`*expect*' calls. (default:
@@ -212,7 +216,8 @@ exception, results in undefined behaviour.
 
 :   Causes the script to wait for the application to exit and compare the
     actual return value to the one specified in the expression. The timeout
-    for the exit to happen is currently hardcoded at 5000 milliseconds.
+    for the exit to happen is defined by the *exit_timeout* setting. If the
+    timeout is reached, the condition fails.
 
 `wait`
 
