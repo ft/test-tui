@@ -51,6 +51,10 @@ idea of what the terminal would actually display. The workhorse that keeps that
 idea of the contents of the terminal accurate and updated is provided by the
 \`*Term::VT102*' module.
 
+Scripts using *Test::TUI* produce output, that adheres to the Test Anything
+Protocol (TAP) and can therefore be consumed by Perl's TAP harnesses, such as
+\`*prove(1)*'.
+
 
 # CONFIGURATION
 
@@ -389,7 +393,9 @@ listed here:
 
 # SEE ALSO
 
-*IO::Pty::Easy*, *Term::VT102*
+*IO::Pty::Easy*, *Term::VT102*, *prove(1)*
+
+*http://testanything.org*
 
 
 # AUTHOR
