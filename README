@@ -29,7 +29,8 @@ BUILDING THE DOCUMENTATION
 
 USAGE
 
-    See the manual `Test::TUI(3)' after BUILDING THE DOCUMENTATION and the
+    See the reference manuals `Test::TUI(3)', `Test::TUI::Inspect(3)' and
+    `Test::TUI::VT102(3)' after BUILDING THE DOCUMENTATION and the
     `example-script' file in the distribution's root directory.
 
 
