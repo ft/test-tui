@@ -16,7 +16,7 @@ test_script [
     { title => q{aumix started up normally},
       until => { string => "aumix",
                  line => 1,
-                 lendgth => 5 } },
+                 length => 5 } },
     "+++",
     { wait => 250 },
     "---",
