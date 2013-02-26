@@ -268,6 +268,25 @@ something to happen for longer periods of time, \`*until*' - which is described
 below - is probably the more natural fit.
 
 
+### \`programexit'-Expressions
+
+It is usually a good idea to cause the application-under-test to gracefully
+exit at the end of a test-script. The `*programexit*' directive enables you to
+wait for the program to exit and to inspect the exit code the program yielded.
+
+~~~~~~~ {.Perl}
+{ programexit => EXPECTED-EXIT-CODE }
+~~~~~~~
+
+The common exit code to reflect successful termination would be \`*0*'.
+
+\`*programexit*' waits at most \`*exit_timeout*' milliseconds until it times
+out and thus fails the condition. Unlike \`*until*', this directive does not
+allow the user to locally specify a timeout that differs from the global value,
+because this directive only makes sense once (at the very end) of a test
+script.
+
+
 ### \`until'-Expressions
 
 To repetitively check for a condition until either the condition turns out to
