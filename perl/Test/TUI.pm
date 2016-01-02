@@ -332,7 +332,7 @@ sub deal_expect {
         tt_dump("   -*- `expect' condition:", $condition);
     }
     if (!check($condition)) {
-        fail(q{expect}, $title, $title, 1, $condition);
+        fail(q{expect}, $title, 1, $condition);
     }
     print "ok $numberoftests - $title\n";
 }
