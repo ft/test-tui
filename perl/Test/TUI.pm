@@ -243,6 +243,9 @@ sub check {
         if ($debug) {
             tt_dump("   -*- Evaluating code reference revealed:", $result);
         }
+        if (ref $result eq q{HASH}) {
+            return check($result);
+        }
         $result = $result ? q{true} : q{false};
         trace("#    -!- Coderef-condition returned: $result\n");
         return ($result eq q{true}) ? 1 : 0;
