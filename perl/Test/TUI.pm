@@ -459,13 +459,14 @@ sub run_test_script {
           . "x" . "$term_lines characters terminal\n");
     $terminal = Term::VT102->new(cols => $term_cols,
                                  rows => $term_lines);
-    $pty = IO::Pty::Easy->new(handle_pty_size => 1,
+    $pty = IO::Pty::Easy->new(handle_pty_size => 0,
                               raw => 0);
     if ($debug) {
         tt_dump("   -*- Spawning application-under-test:",
                 \@application_under_test);
     }
     $pty->spawn(@application_under_test);
+    # print $ENV{LINES}, " ", $ENV{COLUMNS}, "\n";
     $child_pid = $pty->pid();
     debug("#    -*- PID of application-under-test: $child_pid\n");
     if ($debug) {
