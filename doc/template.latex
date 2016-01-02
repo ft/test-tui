@@ -36,6 +36,9 @@
     \renewcommand{\footrulewidth}{0pt}
 }
 
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+
 \renewcommand{\ttdefault}{cmtt}
 \usepackage[final]{listings}
 \lstset{
