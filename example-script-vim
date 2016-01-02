@@ -1,0 +1,84 @@
+# -*- mode: cperl -*-
+
+# The original example-script performs some tests on ‘aumix’, which screws with
+# the levels of your audio-card. Which is annoying if you want to play with it
+# multiple times while audio playback is active.
+#
+# So let's write a short demonstration that fires up vim and plays with it.
+#
+# The original example-script is still useful to read, because it contains lots
+# of comments every step of the way through its operation. This example does
+# not repeat these comments and only details operations and conditions that are
+# specific to this example.
+#
+# So if you haven't done it, yet, read the original example-script before you
+# continue with this one.
+
+use strict;
+use warnings;
+use POSIX qw{ EXIT_SUCCESS };
+use Test::TUI;
+use Test::TUI::Inspect qw{ terminal_plain_line terminal_status };
+
+testtuiset { trace => 1,
+             debug => 1,
+             dump => 1,
+             # Default size is 24x80; let's use 60x120 in this example:
+             terminal_lines => 60,
+             terminal_columns => 120,
+             write_wait => 2000 };
+
+$Data::Dumper::Deparse = 1;
+
+application_under_test qw{ vim -u /dev/null };
+
+sub test_first_line_of_readme {
+    my ($line) = @_;
+    return { string => q{Test::TUI - Framework for},
+             length => 25,
+             line => $line,
+             column => 1 };
+}
+
+sub test_modeline {
+    my ($what) = @_;
+    my $status = terminal_status();
+    my $value = "$what=" . $status->{$what};
+    return { string => $value,
+             length => length $value,
+             line => $status->{lines},
+             column => 3 };
+}
+
+test_script [
+    { plan => 1 },
+    # vim will echo variable values if you ask ":set foo?". So let's do that
+    # with the dimensions of the terminal that our vim session is running in.
+    # The editor should better be able to tell us the size of the terminal it
+    # is running in.
+    ":set lines?\n",
+    { title => q{Correct line count in mode line!},
+      expect => sub { test_modeline('lines') } },
+    ":set columns?\n",
+    { title => q{Correct column count in mode line!},
+      expect => sub { test_modeline('columns') } },
+    # This reads the README file, which will leave an empty line at the start
+    # of the buffer, with the contents of README below. So we can devise a test
+    # that looks for the first like of the README file in the second line of
+    # the buffer.
+    ":r README\n",
+    { title => q{README starts at line 2},
+      expect => sub { test_first_line_of_readme(2) } },
+    'gg',
+    'dd',
+    # We removed the first line of the buffer, so now the same test should pass
+    # with testing the first line as well.
+    { title => q{README starts at line 1},
+      expect => sub { test_first_line_of_readme(1) } },
+    # That's all folks. Exit without saving should return successful
+    # termination. This vim kinda works. :-)
+    ":q!\n",
+    { title => "application exited normally",
+      programexit => EXIT_SUCCESS } ];
+
+run_test_script;
