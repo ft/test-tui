@@ -51,7 +51,7 @@ sub test_modeline {
 }
 
 test_script [
-    { plan => 1 },
+    { plan => 5 },
     # vim will echo variable values if you ask ":set foo?". So let's do that
     # with the dimensions of the terminal that our vim session is running in.
     # The editor should better be able to tell us the size of the terminal it
